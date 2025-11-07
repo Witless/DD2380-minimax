@@ -4,6 +4,7 @@ import random
 from fishing_game_core.game_tree import Node
 from fishing_game_core.player_utils import PlayerController
 from fishing_game_core.shared import ACTION_TO_STR
+from search_algorithms import minimax
 
 
 class PlayerControllerHuman(PlayerController):
@@ -58,12 +59,37 @@ class PlayerControllerMinimax(PlayerController):
             (see the Node class in game_tree.py for more information!)
         :return: either "stay", "left", "right", "up" or "down"
         :rtype: str
+
+        :keyword initial_tree_node should be renamed to current_state_first_tree_node for clarity
         """
 
-        # EDIT THIS METHOD TO RETURN BEST NEXT POSSIBLE MODE USING MINIMAX ###
+        best_move_int = 0
+        best_value = float('-inf')
+        min_value = float('inf')
 
-        # NOTE: Don't forget to initialize the children of the current node
-        #       with its compute_and_get_children() method!
+        # Get all the possible next moves by our player (0, Green boat) by calling the next function, then apply minimax on each of the moves and select move with max value
+        child_nodes = initial_tree_node.compute_and_get_children()
 
-        random_move = random.randrange(5)
-        return ACTION_TO_STR[random_move]
+        for child_node in child_nodes:
+
+            #The current 'child_node' represents the state after we make a move
+            #Now we call minimax to evaluate this branch with value '1' as it's the other player's (Red boat) turns
+
+            value = minimax(1, child_node, 2)
+
+
+            print(f"[Move {child_node.move}] eval: {value}")
+
+            if value > best_value:
+                best_value = value
+                best_move_int = child_node.move
+            if value < min_value:
+                min_value = value
+
+        #The odd is very low, but it could happen that the max and min value are equal. In that case go random move
+        if min_value == best_value:
+            best_move_int = random.randrange(5)
+
+        return ACTION_TO_STR[best_move_int]
+
+

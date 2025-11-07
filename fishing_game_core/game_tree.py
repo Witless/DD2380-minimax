@@ -208,6 +208,7 @@ class Node:
         new_node.observations = observations
         self.children.append(new_node)
 
+        #Interesting that this property exists
         new_node.probability = probability
         return new_node
 
